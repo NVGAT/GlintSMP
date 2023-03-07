@@ -5,16 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55e556c5-9e57-49d2-80fe-0fc5e62f0e6a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintApplyCommand.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintBookCommand.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintApplyCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintApplyCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintBookCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintBookCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintSMP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintSMP.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/GlintSMP-1.0-shaded.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/GlintSMP-1.0-shaded.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/GlintSMP-1.0.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/original-GlintSMP-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/original-GlintSMP-1.0.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -52,5 +52,6 @@ public class GlintSMP extends JavaPlugin implements Listener {
 
     void registerCommands() {
         getCommand("glintapply").setExecutor(new GlintApplyCommand());
+        getCommand("glintbook").setExecutor(new GlintBookCommand());
     }
 }

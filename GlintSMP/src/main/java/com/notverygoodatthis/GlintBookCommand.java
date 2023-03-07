@@ -16,8 +16,9 @@ public class GlintBookCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
             Player player = (Player) sender;
-            Enchantment ench = Enchantment.getByKey(new NamespacedKey(Bukkit.getPluginManager().getPlugin("GlintSMP"), args[0]));
+            Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(args[0]));
             int level = Integer.parseInt(args[1]);
+            Bukkit.getLogger().info(String.format("Matched enchantment to %s\nMatched level to %d", ench.getKey(), level));
             ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
             EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
             meta.setDisplayName(GlintSMP.glintText("Glint book"));

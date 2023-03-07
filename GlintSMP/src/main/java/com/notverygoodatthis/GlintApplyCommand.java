@@ -21,8 +21,16 @@ public class GlintApplyCommand implements CommandExecutor {
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) player.getInventory().getItemInOffHand().getItemMeta();
                 ItemStack currentItem = player.getInventory().getItemInMainHand();
                 for(Map.Entry<Enchantment, Integer> entry : meta.getStoredEnchants().entrySet()) {
-                    currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+                    if(entry.getKey().canEnchantItem(currentItem)) {
+                        currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+                    } else {
+                        player.sendMessage(GlintSMP.glintText(String.format("Couldn't apply %s %d to your %s",
+                                entry.getKey().getKey(), entry.getValue(), currentItem.getType().name())));
+                    }
                 }
+                player.getInventory().getItemInOffHand().setAmount(player.getInventory().getItemInOffHand().getAmount() - 1);
+                player.sendMessage(GlintSMP.glintText("Finished applying enchantments. If something didn't work, contact an admin."));
+                return true;
             }
         }
         return false;
