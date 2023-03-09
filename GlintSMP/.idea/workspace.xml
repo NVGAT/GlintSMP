@@ -10,7 +10,8 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintBookCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintBookCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintSMP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/notverygoodatthis/GlintSMP.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/GlintSMP-1.0-shaded.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/GlintSMP-1.0-shaded.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/GlintSMP-1.0.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/notverygoodatthis/GlintSMP.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/original-GlintSMP-1.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/original-GlintSMP-1.0.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,6 +47,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "D:/epic programmer projects/GlintSMP",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0"
