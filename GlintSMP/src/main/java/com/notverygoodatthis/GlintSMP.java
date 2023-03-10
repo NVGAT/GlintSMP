@@ -23,6 +23,15 @@ public class GlintSMP extends JavaPlugin implements Listener {
         registerCommands();
     }
 
+    public static ItemStack getGlintBook(Enchantment ench, int level) {
+        ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
+        EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
+        meta.addStoredEnchant(ench, level, true);
+        meta.setDisplayName(glintText("Glint book"));
+        book.setItemMeta(meta);
+        return book;
+    }
+
     //Used to make text golden so I don't have to look up "minecraft color codes" every time
     public static String glintText(String text)  {
         return String.format("§6%s", text);
@@ -31,34 +40,30 @@ public class GlintSMP extends JavaPlugin implements Listener {
     //Player death event, the most important one on the SMP
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        //If they got killed by a player and they're not on cooldown...
+        //If they got killed by a player, and they're not on cooldown...
         if(e.getEntity().getKiller() instanceof Player && !cooldownPlayers.contains(e.getEntity().getName())) {
-            //We store the player in an object and create the enchanted book object
+            //We store the player in an object
             Player player = e.getEntity();
-            ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
-            //We cast the ItemMeta to an EnchantmentStorageMeta, used to give the book some enchantments
-            EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
-            //Then we store every enchantment in a list, which helps us choose a random one
-            List<Enchantment> enchList = new ArrayList<>(Arrays.asList(Enchantment.values()));
-            //We pick a random enchantment and log it
-            Random rd = new Random();
-            Enchantment ench = enchList.get(rd.nextInt(enchList.size()));
-            getLogger().info(String.format("Enchantment picked: %s", ench.toString()));
-            //Then we apply the enchantment to the item meta, ignoring the level restrictions
-            meta.addStoredEnchant(ench, rd.nextInt(10), true);
-            //Then we set its name to a glint book and set the book's item meta to the EnchantmentStorageMeta we defined earlier
-            meta.setDisplayName(glintText("Glint book"));
-            book.setItemMeta(meta);
-            //After all of that, we drop the book at the player's location and add them to the cooldown list
-            player.getWorld().dropItemNaturally(player.getLocation(), book);
-            cooldownPlayers.add(player.getName());
-            //After all of that, we assign a task to let the player get out of cooldown after 10 minutes
-            Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-                @Override
-                public void run() {
-                    cooldownPlayers.remove(player.getName());
-                }
-            }, 20L * 600);
+            if(!player.getKiller().getName().equals(player.getName())) {
+                //Then we store every enchantment in a list, which helps us choose a random one
+                List<Enchantment> enchList = new ArrayList<>(Arrays.asList(Enchantment.values()));
+                //We pick a random enchantment and log it
+                Random rd = new Random();
+                Enchantment ench = enchList.get(rd.nextInt(enchList.size()));
+                getLogger().info(String.format("Enchantment picked: %s", ench.getKey()));
+                //After all of that, we drop the book at the player's location and add them to the cooldown list
+                player.getWorld().dropItemNaturally(player.getLocation(), getGlintBook(ench, rd.nextInt(10)));
+                cooldownPlayers.add(player.getName());
+                //After all of that, we assign a task to let the player get out of cooldown after 10 minutes
+                Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+                    @Override
+                    public void run() {
+                        cooldownPlayers.remove(player.getName());
+                    }
+                }, 20L * 600);
+            } else {
+                getLogger().info(String.format("%s just tried killing themselves for a free book. what a bozo", player.getName()));
+            }
         }
     }
 
