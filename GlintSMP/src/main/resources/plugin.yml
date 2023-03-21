@@ -12,3 +12,8 @@ commands:
     description: Gives you a Glint SMP book (ADMIN ONLY)
     usage: /<command>
     permission: glintsmp.admin
+
+  glintrandom:
+    description: Gives you a randomly generated Glint SMP book (ADMIN ONLY)
+    usage: /<command>
+    permission: glintsmp.admin
