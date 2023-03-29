@@ -1,5 +1,8 @@
-com\notverygoodatthis\GlintSMP.class
-com\notverygoodatthis\GlintSMP$1.class
+com\notverygoodatthis\SetSpawnCommand.class
 com\notverygoodatthis\GlintApplyCommand.class
-com\notverygoodatthis\GlintBookCommand.class
 com\notverygoodatthis\RandGlintBook.class
+com\notverygoodatthis\GlintSMP.class
+com\notverygoodatthis\GlintSMP$2.class
+com\notverygoodatthis\SpawnCheckCommand.class
+com\notverygoodatthis\GlintSMP$1.class
+com\notverygoodatthis\GlintBookCommand.class

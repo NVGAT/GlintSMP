@@ -1,13 +1,16 @@
 package com.notverygoodatthis;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -17,19 +20,27 @@ import java.util.*;
 
 public class GlintSMP extends JavaPlugin implements Listener {
     public static HashMap<String, Integer> playerLives = new HashMap<>();
-
-    //list of players on cooldown from dropping books
+    public static Location spawnLocation;
     List<String> cooldownPlayers = new ArrayList<>();
+    List<String> combatPlayers = new ArrayList<>();
+
     @Override
     public void onEnable() {
         //Registering the event listener and the commands
         Bukkit.getPluginManager().registerEvents(this, this);
         registerCommands();
-        List<String> players = (List<String>) getConfig().getList("players");
-        List<Integer> lives = (List<Integer>) getConfig().getList("lives");
-        for(String p : players) {
-            playerLives.put(p, lives.get(players.indexOf(p)));
-        }
+
+        Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+            @Override
+            public void run() {
+                if(getConfig().isSet("spawn-location")) {
+                    List<Double> spawnCords = (List<Double>) getConfig().getList("spawn-location");
+                    spawnLocation = new Location(Bukkit.getWorld("world"), spawnCords.get(0), spawnCords.get(1), spawnCords.get(2));
+                } else {
+                    getLogger().info("Spawn not set in the config! You can set it manually or through the /spawnset command");
+                }
+            }
+        }, 20L);
     }
 
     public static ItemStack getGlintBook(Enchantment ench, int level) {
@@ -53,6 +64,15 @@ public class GlintSMP extends JavaPlugin implements Listener {
     //Player death event, the most important one on the SMP
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
+        if(e.getEntity().getKiller() instanceof Player) {
+            Player p = e.getEntity();
+            Location l = p.getLocation();
+            if(spawnLocation.distance(l) > 20) {
+                getLogger().info(String.format("%s died at %d %d %d in %s", p.getName(), l.getX(), l.getY(), l.getZ(), l.getWorld().getName()));
+            } else {
+                getLogger().info(String.format("%s died at spawn to %s", p.getName(), p.getKiller().getName()));
+            }
+        }
         //If they got killed by a player, and they're not on cooldown...
         if(e.getEntity().getKiller() instanceof Player && !cooldownPlayers.contains(e.getEntity().getName())) {
             //We store the player in an object
@@ -74,9 +94,19 @@ public class GlintSMP extends JavaPlugin implements Listener {
                         cooldownPlayers.remove(player.getName());
                     }
                 }, 20L * 600);
+                if(spawnLocation.distance(player.getLocation()) < 20) {
+
+                }
             } else {
                 getLogger().info(String.format("%s just tried killing themselves for a free book. what a bozo", player.getName()));
             }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent e) {
+        if(e.getEntity() instanceof Creeper) {
+            e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation(), new ItemStack(Material.GUNPOWDER, 5));
         }
     }
 
@@ -85,8 +115,12 @@ public class GlintSMP extends JavaPlugin implements Listener {
         if(e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
             Player attacker = (Player) e.getDamager();
             Player attacked = (Player) e.getEntity();
+            getLogger().info(String.format("%s has hit %s", attacker.getName(), attacked.getName()));
             if(attacked.isBlocking() && attacker.getInventory().getItemInMainHand().getType().name().contains("_axe")) {
                 attacker.getWorld().playSound(attacker.getLocation(), Sound.ITEM_SHIELD_BREAK, 1, 1);
+            }
+            if(attacked.getLocation().distance(attacked.getLocation()) < 20) {
+                getLogger().info(String.format("%s has attacked %s outside of spawn.", attacker.getName(), attacked.getName()));
             }
         }
     }
@@ -96,5 +130,7 @@ public class GlintSMP extends JavaPlugin implements Listener {
         getCommand("glintapply").setExecutor(new GlintApplyCommand());
         getCommand("glintbook").setExecutor(new GlintBookCommand());
         getCommand("glintrandom").setExecutor(new RandGlintBook());
+        getCommand("setspawn").setExecutor(new SetSpawnCommand());
+        getCommand("spawncheck").setExecutor(new SpawnCheckCommand());
     }
 }
