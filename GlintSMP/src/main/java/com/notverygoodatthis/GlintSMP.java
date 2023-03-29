@@ -19,10 +19,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class GlintSMP extends JavaPlugin implements Listener {
-    public static HashMap<String, Integer> playerLives = new HashMap<>();
     public static Location spawnLocation;
     List<String> cooldownPlayers = new ArrayList<>();
-    List<String> combatPlayers = new ArrayList<>();
 
     @Override
     public void onEnable() {
