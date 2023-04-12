@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,6 +22,7 @@ import java.util.*;
 public class GlintSMP extends JavaPlugin implements Listener {
     public static Location spawnLocation;
     List<String> cooldownPlayers = new ArrayList<>();
+    public static HashMap<String, String> playersTiers = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -37,11 +39,26 @@ public class GlintSMP extends JavaPlugin implements Listener {
                 } else {
                     getLogger().info("Spawn not set in the config! You can set it manually or through the /spawnset command");
                 }
+
+                List<String> playerNames = (List<String>) getConfig().getList("players");
+                List<String> playerTiers = (List<String>) getConfig().getList("tiers");
+
+                for(String p : playerNames) {
+                    String tier = playerTiers.get(playerNames.indexOf(p));
+                    playersTiers.put(p, tier);
+                    getLogger().info(String.format("%s is tier %s", p, tier));
+                }
             }
         }, 20L);
     }
 
+    public static String getTierForPlayer(Player p) {
+        return playersTiers.get(p.getName());
+    }
+
+
     public static ItemStack getGlintBook(Enchantment ench, int level) {
+        //Getter for glint books
         ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
         EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
         meta.addStoredEnchant(ench, level, true);
@@ -59,50 +76,44 @@ public class GlintSMP extends JavaPlugin implements Listener {
         return (int) ((Math.random() * (max - min)) + min);
     }
 
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        if(!playersTiers.containsKey(e.getPlayer())) {
+            playersTiers.put(e.getPlayer().getName(), "B");
+        }
+        GlintPlayer p = new GlintPlayer(e.getPlayer(), GlintTier.valueOf(getTierForPlayer(e.getPlayer())));
+        p.updateTabListName();
+    }
+
+
     //Player death event, the most important one on the SMP
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        if(e.getEntity().getKiller() instanceof Player) {
+        if(e.getEntity().getKiller() instanceof Player && getConfig().isSet("spawn-location")) {
             Player p = e.getEntity();
             Location l = p.getLocation();
-            if(spawnLocation.distance(l) > 20) {
-                getLogger().info(String.format("%s died at %d %d %d in %s", p.getName(), l.getX(), l.getY(), l.getZ(), l.getWorld().getName()));
-            } else {
-                getLogger().info(String.format("%s died at spawn to %s", p.getName(), p.getKiller().getName()));
+            if(spawnLocation.distance(l) < 20) {
+                getLogger().info(String.format("%s killed %s at spawn!", p.getKiller().getName(), p.getName()));
             }
         }
         //If they got killed by a player, and they're not on cooldown...
         if(e.getEntity().getKiller() instanceof Player && !cooldownPlayers.contains(e.getEntity().getName())) {
-            //We store the player in an object
-            Player player = e.getEntity();
-            if(!player.getKiller().getName().equals(player.getName())) {
-                //Then we store every enchantment in a list, which helps us choose a random one
-                List<Enchantment> enchList = new ArrayList<>(Arrays.asList(Enchantment.values()));
-                //We pick a random enchantment and log it
-                Random rd = new Random();
-                Enchantment ench = enchList.get(rd.nextInt(enchList.size()));
-                getLogger().info(String.format("Enchantment picked: %s", ench.getKey()));
-                //After all of that, we drop the book at the player's location and add them to the cooldown list
-                player.getWorld().dropItemNaturally(player.getLocation(), getGlintBook(ench, randRange(1, 10)));
-                cooldownPlayers.add(player.getName());
-                //After all of that, we assign a task to let the player get out of cooldown after 10 minutes
-                Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-                    @Override
-                    public void run() {
-                        cooldownPlayers.remove(player.getName());
-                    }
-                }, 20L * 600);
-                if(spawnLocation.distance(player.getLocation()) < 20) {
-
-                }
-            } else {
-                getLogger().info(String.format("%s just tried killing themselves for a free book. what a bozo", player.getName()));
+            //We store the player and the killer in a GlintPlayer
+            GlintPlayer player = new GlintPlayer(e.getEntity(), GlintTier.valueOf(getTierForPlayer(e.getEntity())));
+            GlintPlayer killer = new GlintPlayer(e.getEntity().getKiller(), GlintTier.valueOf(getTierForPlayer(e.getEntity().getKiller())));
+            //We drop the appropriate book
+            player.getPlayer().getWorld().dropItemNaturally(player.getPlayer().getLocation(), player.getGlintBook());
+            if(killer.shouldLevelUp(player.getTier())) {
+                //And if the killer should level up, we increment the killer's tier and decrement the player's tier
+                killer.incrementTier();
+                player.decrementTier();
             }
         }
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
+        //Buffed creeper drop rates
         if(e.getEntity() instanceof Creeper) {
             e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation(), new ItemStack(Material.GUNPOWDER, 5));
         }
@@ -111,14 +122,11 @@ public class GlintSMP extends JavaPlugin implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         if(e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+            //Shield break sounds
             Player attacker = (Player) e.getDamager();
             Player attacked = (Player) e.getEntity();
-            getLogger().info(String.format("%s has hit %s", attacker.getName(), attacked.getName()));
             if(attacked.isBlocking() && attacker.getInventory().getItemInMainHand().getType().name().contains("_axe")) {
                 attacker.getWorld().playSound(attacker.getLocation(), Sound.ITEM_SHIELD_BREAK, 1, 1);
-            }
-            if(attacked.getLocation().distance(attacked.getLocation()) < 20) {
-                getLogger().info(String.format("%s has attacked %s outside of spawn.", attacker.getName(), attacked.getName()));
             }
         }
     }
@@ -130,5 +138,6 @@ public class GlintSMP extends JavaPlugin implements Listener {
         getCommand("glintrandom").setExecutor(new RandGlintBook());
         getCommand("setspawn").setExecutor(new SetSpawnCommand());
         getCommand("spawncheck").setExecutor(new SpawnCheckCommand());
+        getCommand("glinttier").setExecutor(new GlintTierCommand());
     }
 }
