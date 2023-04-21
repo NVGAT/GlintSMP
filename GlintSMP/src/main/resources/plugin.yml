@@ -31,3 +31,7 @@ commands:
     description: Sets a player's tier (ADMIN ONLY)
     usage: /<command>
     permission: glintsmp.admin
+
+  glintrevive:
+    description: Revives a previously banned player.
+    usage: /<command>

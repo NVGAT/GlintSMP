@@ -1,5 +1,6 @@
 package com.notverygoodatthis;
 
+import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -92,6 +93,9 @@ public class GlintPlayer {
             setTier(minusOne);
         } catch(ArrayIndexOutOfBoundsException e) {
             Bukkit.getLogger().info(String.format("Couldn't decrement the tier of %s because it's already at its lowest", player.getName()));
+            String banReason = GlintSMP.glintText(String.format("You've been knocked out of D tier by %s. Thank you for playing on the Glint SMP.", player.getKiller().getName()));
+            Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), banReason, null, "Glint SMP plugin");
+            player.kickPlayer(banReason);
         }
         updateTabListName();
     }

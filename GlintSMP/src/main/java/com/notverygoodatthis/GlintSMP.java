@@ -1,20 +1,22 @@
 package com.notverygoodatthis;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import dev.dbassett.skullcreator.SkullCreator;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
@@ -29,6 +31,8 @@ public class GlintSMP extends JavaPlugin implements Listener {
         //Registering the event listener and the commands
         Bukkit.getPluginManager().registerEvents(this, this);
         registerCommands();
+        Bukkit.addRecipe(revival());
+        Bukkit.addRecipe(tierUp());
 
         Bukkit.getScheduler().runTaskLater(this, new Runnable() {
             @Override
@@ -85,6 +89,16 @@ public class GlintSMP extends JavaPlugin implements Listener {
         p.updateTabListName();
     }
 
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if(e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals(glintText("Tier-up"))) {
+                GlintPlayer p = new GlintPlayer(e.getPlayer(), GlintTier.valueOf(getTierForPlayer(e.getPlayer())));
+                p.incrementTier();
+                p.getPlayer().getInventory().getItemInMainHand().setAmount(p.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
+            }
+        }
+    }
 
     //Player death event, the most important one on the SMP
     @EventHandler
@@ -139,5 +153,34 @@ public class GlintSMP extends JavaPlugin implements Listener {
         getCommand("setspawn").setExecutor(new SetSpawnCommand());
         getCommand("spawncheck").setExecutor(new SpawnCheckCommand());
         getCommand("glinttier").setExecutor(new GlintTierCommand());
+        getCommand("glintrevive").setExecutor(new GlintReviveCommand());
+    }
+
+    ShapedRecipe revival() {
+        NamespacedKey key = new NamespacedKey(this, "player_head");
+        ItemStack head = SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjYyNjUxODc5ZDg3MDQ5OWRhNTBlMzQwMzY4MDBkZGZmZDUyZjNlNGUxOTkzYzVmYzBmYzgyNWQwMzQ0NmQ4YiJ9fX0=");
+        ItemMeta meta = head.getItemMeta();
+        meta.setDisplayName(glintText("Revival head"));
+        head.setItemMeta(meta);
+        ShapedRecipe rec = new ShapedRecipe(key, head);
+        rec.shape("RTR", "TET", "RTR");
+        rec.setIngredient('R', Material.RECOVERY_COMPASS);
+        rec.setIngredient('T', Material.TOTEM_OF_UNDYING);
+        rec.setIngredient('E', Material.ELYTRA);
+        return rec;
+    }
+
+    ShapedRecipe tierUp() {
+        NamespacedKey key = new NamespacedKey(this, "tier_up");
+        ItemStack head = SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzY1MDViMWJlZmJhMjQyMTcwYTQ2ZTg5NDdiNTJhZWE1NGE1OTA2MGYzZTFjMzZmMjFjZWJiNDQ2OTBmOGIwYyJ9fX0=");
+        ItemMeta meta = head.getItemMeta();
+        meta.setDisplayName(glintText("Tier-up"));
+        head.setItemMeta(meta);
+        ShapedRecipe rec = new ShapedRecipe(key, head);
+        rec.shape("DTD", "TNT", "DTD");
+        rec.setIngredient('D', Material.DIAMOND_BLOCK);
+        rec.setIngredient('T', Material.TOTEM_OF_UNDYING);
+        rec.setIngredient('N', Material.TOTEM_OF_UNDYING);
+        return rec;
     }
 }
