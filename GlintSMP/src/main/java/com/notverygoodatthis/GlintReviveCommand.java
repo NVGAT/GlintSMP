@@ -23,13 +23,6 @@ public class GlintReviveCommand implements CommandExecutor {
                     Bukkit.getBanList(BanList.Type.NAME).pardon(strings[0]);
                     player.sendMessage(GlintSMP.glintText(String.format("Successfully revived %s.", strings[0])));
                     player.getInventory().getItemInMainHand().setAmount(held.getAmount() - 1);
-                    GlintSMP.playersTiers.remove(strings[0], GlintSMP.getTierForPlayer(Bukkit.getOfflinePlayer(strings[0]).getPlayer()));
-                    GlintSMP.playersTiers.put(strings[0], "B");
-                    List<String> players = new ArrayList<>(GlintSMP.playersTiers.keySet());
-                    List<String> tiers = new ArrayList<>(GlintSMP.playersTiers.values());
-                    Bukkit.getPluginManager().getPlugin("GlintSMP").getConfig().set("players", players);
-                    Bukkit.getPluginManager().getPlugin("GlintSMP").getConfig().set("tiers", tiers);
-                    Bukkit.getPluginManager().getPlugin("GlintSMP").saveConfig();
                 } else {
                     player.sendMessage(GlintSMP.glintText("Couldn't revive. Did you make a typo in the name?"));
                 }

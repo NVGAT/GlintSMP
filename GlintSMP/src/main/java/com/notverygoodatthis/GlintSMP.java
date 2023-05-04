@@ -8,11 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
@@ -60,6 +62,10 @@ public class GlintSMP extends JavaPlugin implements Listener {
         return playersTiers.get(p.getName());
     }
 
+    public static String getTierForPlayer(String s) {
+        return playersTiers.get(s);
+    }
+
 
     public static ItemStack getGlintBook(Enchantment ench, int level) {
         //Getter for glint books
@@ -82,7 +88,7 @@ public class GlintSMP extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if(!playersTiers.containsKey(e.getPlayer())) {
+        if(!playersTiers.containsKey(e.getPlayer().getName())) {
             playersTiers.put(e.getPlayer().getName(), "B");
         }
         GlintPlayer p = new GlintPlayer(e.getPlayer(), GlintTier.valueOf(getTierForPlayer(e.getPlayer())));
@@ -92,11 +98,23 @@ public class GlintSMP extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if(e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals(glintText("Tier-up"))) {
+            if(e.getPlayer().getInventory().getItemInMainHand().hasItemMeta() && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals(glintText("Tier-up"))) {
                 GlintPlayer p = new GlintPlayer(e.getPlayer(), GlintTier.valueOf(getTierForPlayer(e.getPlayer())));
-                p.incrementTier();
-                p.getPlayer().getInventory().getItemInMainHand().setAmount(p.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
+                if(p.getTier() != GlintTier.A && p.getTier() != GlintTier.S && p.getTier() != GlintTier.B) {
+                    p.incrementTier();
+                    p.getPlayer().getInventory().getItemInMainHand().setAmount(p.getPlayer().getInventory().getItemInMainHand().getAmount() - 1);
+                    p.getPlayer().sendMessage(glintText(String.format("Incremented your tier to %s", p.getTier())));
+                } else {
+                    e.getPlayer().sendMessage(glintText("You can only level up to B tier with this item"));
+                }
             }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        if(e.getPlayer().getInventory().getItemInMainHand().getType() == Material.PLAYER_HEAD) {
+            e.setCancelled(true);
         }
     }
 
@@ -111,16 +129,16 @@ public class GlintSMP extends JavaPlugin implements Listener {
             }
         }
         //If they got killed by a player, and they're not on cooldown...
-        if(e.getEntity().getKiller() instanceof Player && !cooldownPlayers.contains(e.getEntity().getName())) {
+        if(e.getEntity().getKiller() instanceof Player) {
             //We store the player and the killer in a GlintPlayer
             GlintPlayer player = new GlintPlayer(e.getEntity(), GlintTier.valueOf(getTierForPlayer(e.getEntity())));
             GlintPlayer killer = new GlintPlayer(e.getEntity().getKiller(), GlintTier.valueOf(getTierForPlayer(e.getEntity().getKiller())));
             //We drop the appropriate book
             player.getPlayer().getWorld().dropItemNaturally(player.getPlayer().getLocation(), player.getGlintBook());
+            player.decrementTier();
             if(killer.shouldLevelUp(player.getTier())) {
                 //And if the killer should level up, we increment the killer's tier and decrement the player's tier
                 killer.incrementTier();
-                player.decrementTier();
             }
         }
     }
@@ -180,7 +198,7 @@ public class GlintSMP extends JavaPlugin implements Listener {
         rec.shape("DTD", "TNT", "DTD");
         rec.setIngredient('D', Material.DIAMOND_BLOCK);
         rec.setIngredient('T', Material.TOTEM_OF_UNDYING);
-        rec.setIngredient('N', Material.TOTEM_OF_UNDYING);
+        rec.setIngredient('N', Material.NETHERITE_INGOT);
         return rec;
     }
 }

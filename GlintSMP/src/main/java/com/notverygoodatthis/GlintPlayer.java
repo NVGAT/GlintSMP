@@ -24,7 +24,13 @@ enum GlintTier {
 public class GlintPlayer {
     private Player player;
     private GlintTier tier;
-
+    //this is the worst list initialization I've ever written. only me and god himself know what I was doing here.
+    private List<Enchantment> valuables = Arrays.asList(new Enchantment[]{Enchantment.DAMAGE_ALL,
+            Enchantment.PROTECTION_ENVIRONMENTAL, Enchantment.DURABILITY, Enchantment.MENDING, Enchantment.ARROW_DAMAGE,
+            Enchantment.DAMAGE_UNDEAD, Enchantment.DAMAGE_ARTHROPODS, Enchantment.PROTECTION_EXPLOSIONS,
+            Enchantment.PROTECTION_FALL, Enchantment.PROTECTION_FIRE, Enchantment.PROTECTION_PROJECTILE,
+            Enchantment.SWIFT_SNEAK, Enchantment.FIRE_ASPECT, Enchantment.DEPTH_STRIDER, Enchantment.DIG_SPEED,
+            Enchantment.SOUL_SPEED, Enchantment.SILK_TOUCH, Enchantment.LOOT_BONUS_BLOCKS, Enchantment.LOOT_BONUS_MOBS});
     public GlintPlayer(Player player, GlintTier tier) {
         this.player = player;
         this.tier = tier;
@@ -44,11 +50,14 @@ public class GlintPlayer {
     }
 
     public ItemStack getGlintBook() {
+        GlintPlayer killer = new GlintPlayer(player.getKiller(), GlintTier.valueOf(GlintSMP.getTierForPlayer(player.getKiller())));
         ItemStack item = new ItemStack(Material.AIR);
         Random rd = new Random();
-        Enchantment ench = Arrays.asList(Enchantment.values()).get(rd.nextInt(Arrays.asList(Enchantment.values()).size()));
-        switch(tier) {
+        Enchantment ench;
+        ench = Arrays.asList(Enchantment.values()).get(rd.nextInt(Arrays.asList(Enchantment.values()).size()));
+        switch(killer.getTier()) {
             case S:
+                ench = valuables.get(rd.nextInt(valuables.size()));
                 item = GlintSMP.getGlintBook(ench, GlintSMP.randRange(9, 11));
                 break;
             case A:
@@ -91,6 +100,7 @@ public class GlintPlayer {
         try {
             GlintTier minusOne = allTiers.get(allTiers.indexOf(tier) + 1);
             setTier(minusOne);
+            Bukkit.getLogger().info(String.format("Decremented the tier of %s to %s", player.getName(), minusOne));
         } catch(ArrayIndexOutOfBoundsException e) {
             Bukkit.getLogger().info(String.format("Couldn't decrement the tier of %s because it's already at its lowest", player.getName()));
             String banReason = GlintSMP.glintText(String.format("You've been knocked out of D tier by %s. Thank you for playing on the Glint SMP.", player.getKiller().getName()));
@@ -102,12 +112,13 @@ public class GlintPlayer {
 
     public void updateTabListName() {
         player.setPlayerListName(String.format("[%s] %s", tier.toString().replace("GlintTier.", ""), player.getName()));
-        Plugin glintPlugin = Bukkit.getPluginManager().getPlugin("GlintSMP");
+        GlintSMP.playersTiers.remove(player.getName(), GlintSMP.getTierForPlayer(player));
+        GlintSMP.playersTiers.put(player.getName(), tier.toString());
         List<String> players = new ArrayList<>(GlintSMP.playersTiers.keySet());
         List<String> tiers = new ArrayList<>(GlintSMP.playersTiers.values());
-        glintPlugin.getConfig().set("players", players);
-        glintPlugin.getConfig().set("tiers", tiers);
-        glintPlugin.saveConfig();
+        Bukkit.getPluginManager().getPlugin("GlintSMP").getConfig().set("players", players);
+        Bukkit.getPluginManager().getPlugin("GlintSMP").getConfig().set("tiers", tiers);
+        Bukkit.getPluginManager().getPlugin("GlintSMP").saveConfig();
         GlintSMP.playersTiers.remove(player.getName(), GlintSMP.getTierForPlayer(player));
         GlintSMP.playersTiers.put(player.getName(), tier.toString());
     }
