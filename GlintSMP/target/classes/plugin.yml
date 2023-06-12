@@ -1,5 +1,5 @@
 name: GlintSMP
-version: 2.0
+version: 2.2
 main: com.notverygoodatthis.GlintSMP
 api-version: 1.19
 
@@ -34,4 +34,8 @@ commands:
 
   glintrevive:
     description: Revives a previously banned player.
+    usage: /<command>
+
+  revivalwave:
+    description: Uses the Revival Wave item
     usage: /<command>

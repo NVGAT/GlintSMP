@@ -121,13 +121,6 @@ public class GlintSMP extends JavaPlugin implements Listener {
     //Player death event, the most important one on the SMP
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        if(e.getEntity().getKiller() instanceof Player && getConfig().isSet("spawn-location")) {
-            Player p = e.getEntity();
-            Location l = p.getLocation();
-            if(spawnLocation.distance(l) < 20) {
-                getLogger().info(String.format("%s killed %s at spawn!", p.getKiller().getName(), p.getName()));
-            }
-        }
         //If they got killed by a player, and they're not on cooldown...
         if(e.getEntity().getKiller() instanceof Player) {
             //We store the player and the killer in a GlintPlayer
@@ -135,11 +128,11 @@ public class GlintSMP extends JavaPlugin implements Listener {
             GlintPlayer killer = new GlintPlayer(e.getEntity().getKiller(), GlintTier.valueOf(getTierForPlayer(e.getEntity().getKiller())));
             //We drop the appropriate book
             player.getPlayer().getWorld().dropItemNaturally(player.getPlayer().getLocation(), player.getGlintBook());
-            player.decrementTier();
             if(killer.shouldLevelUp(player.getTier())) {
                 //And if the killer should level up, we increment the killer's tier and decrement the player's tier
                 killer.incrementTier();
             }
+            player.decrementTier();
         }
     }
 
@@ -172,6 +165,7 @@ public class GlintSMP extends JavaPlugin implements Listener {
         getCommand("spawncheck").setExecutor(new SpawnCheckCommand());
         getCommand("glinttier").setExecutor(new GlintTierCommand());
         getCommand("glintrevive").setExecutor(new GlintReviveCommand());
+        getCommand("revivalwave").setExecutor(new RevivalWave());
     }
 
     ShapedRecipe revival() {

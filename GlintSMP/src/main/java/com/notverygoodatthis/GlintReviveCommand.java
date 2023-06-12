@@ -21,6 +21,10 @@ public class GlintReviveCommand implements CommandExecutor {
             if(held.getItemMeta().getDisplayName().equals(GlintSMP.glintText("Revival head"))) {
                 if(Bukkit.getBanList(BanList.Type.NAME).isBanned(strings[0])) {
                     Bukkit.getBanList(BanList.Type.NAME).pardon(strings[0]);
+
+                    OfflinePlayer target = Bukkit.getOfflinePlayer(strings[0]);
+                    Bukkit.getBanList(BanList.Type.NAME).pardon(target.getName());
+
                     player.sendMessage(GlintSMP.glintText(String.format("Successfully revived %s.", strings[0])));
                     player.getInventory().getItemInMainHand().setAmount(held.getAmount() - 1);
                 } else {

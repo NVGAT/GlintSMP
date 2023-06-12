@@ -22,25 +22,21 @@ public class GlintApplyCommand implements CommandExecutor {
             //the book is named accordingly
             if(player.getInventory().getItemInOffHand().getType() == Material.ENCHANTED_BOOK &&
                     player.getInventory().getItemInOffHand().getItemMeta().getDisplayName().equals(GlintSMP.glintText("Glint book"))) {
-                //We create an EnchantmentStorageMeta and point it to the book's ItemMeta.
-                //We also store the currently held item in an ItemStack object
+                //We create an EnchantmentStorageMeta and point it to the book's ItemMeta, and pick the first enchantment in there.
+                //This works because glint books only have one enchantment. We also store the level.
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) player.getInventory().getItemInOffHand().getItemMeta();
-                ItemStack currentItem = player.getInventory().getItemInMainHand();
-                //We loop through every enchantment in the EnchantmentStorageMeta
-                for(Map.Entry<Enchantment, Integer> entry : meta.getStoredEnchants().entrySet()) {
-                    //If the enchantment is supported on the currently held item we apply it.
-                    if(entry.getKey().canEnchantItem(currentItem)) {
-                        currentItem.addUnsafeEnchantment(entry.getKey(), entry.getValue());
-                    } else {
-                        //If it's not we notify the player that the enchantment isn't supported.
-                        player.sendMessage(GlintSMP.glintText(String.format("Couldn't apply %s %d to your %s",
-                                entry.getKey().getKey(), entry.getValue(), currentItem.getType().name())));
-                    }
+                Enchantment ench = meta.getStoredEnchants().keySet().iterator().next();
+                int level = meta.getStoredEnchants().values().iterator().next();
+                //If the enchantment can in fact go through...
+                if(ench.canEnchantItem(player.getInventory().getItemInMainHand())) {
+                    //We enchant the player's item, notify them and take away one glint book.
+                    player.getInventory().getItemInMainHand().addUnsafeEnchantment(ench, level);
+                    player.sendMessage(String.format(GlintSMP.glintText("Applied %s %d to your %s"), ench.getKey(), level, player.getInventory().getItemInMainHand().getType()));
+                    player.getInventory().getItemInOffHand().setAmount(player.getInventory().getItemInOffHand().getAmount() - 1);
+                } else {
+                    //But if it can't, we notify the player and don't take away anything.
+                    player.sendMessage(String.format(GlintSMP.glintText("Couldn't apply %s %d to your %s"), ench.getKey(), level, player.getInventory().getItemInMainHand().getType()));
                 }
-                //After the loop, we take away the book in the offhand and tell the player that the enchantments have
-                //been applied.
-                player.getInventory().getItemInOffHand().setAmount(player.getInventory().getItemInOffHand().getAmount() - 1);
-                player.sendMessage(GlintSMP.glintText("Finished applying enchantments. If something didn't work, contact an admin."));
                 return true;
             }
         }
