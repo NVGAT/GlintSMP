@@ -4,8 +4,6 @@ com\notverygoodatthis\GlintReviveCommand.class
 com\notverygoodatthis\GlintTier.class
 com\notverygoodatthis\GlintSMP.class
 com\notverygoodatthis\GlintTierCommand.class
-com\notverygoodatthis\SpawnCheckCommand.class
-com\notverygoodatthis\SetSpawnCommand.class
 com\notverygoodatthis\GlintPlayer.class
 com\notverygoodatthis\RevivalWave.class
 com\notverygoodatthis\RandGlintBook.class

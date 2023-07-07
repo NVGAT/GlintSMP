@@ -12,6 +12,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -24,7 +25,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 
 public class GlintSMP extends JavaPlugin implements Listener {
-    public static Location spawnLocation;
     List<String> cooldownPlayers = new ArrayList<>();
     public static HashMap<String, String> playersTiers = new HashMap<>();
 
@@ -39,12 +39,6 @@ public class GlintSMP extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskLater(this, new Runnable() {
             @Override
             public void run() {
-                if(getConfig().isSet("spawn-location")) {
-                    List<Double> spawnCords = (List<Double>) getConfig().getList("spawn-location");
-                    spawnLocation = new Location(Bukkit.getWorld("world"), spawnCords.get(0), spawnCords.get(1), spawnCords.get(2));
-                } else {
-                    getLogger().info("Spawn not set in the config! You can set it manually or through the /spawnset command");
-                }
 
                 List<String> playerNames = (List<String>) getConfig().getList("players");
                 List<String> playerTiers = (List<String>) getConfig().getList("tiers");
@@ -126,13 +120,15 @@ public class GlintSMP extends JavaPlugin implements Listener {
             //We store the player and the killer in a GlintPlayer
             GlintPlayer player = new GlintPlayer(e.getEntity(), GlintTier.valueOf(getTierForPlayer(e.getEntity())));
             GlintPlayer killer = new GlintPlayer(e.getEntity().getKiller(), GlintTier.valueOf(getTierForPlayer(e.getEntity().getKiller())));
-            //We drop the appropriate book
-            player.getPlayer().getWorld().dropItemNaturally(player.getPlayer().getLocation(), player.getGlintBook());
-            if(killer.shouldLevelUp(player.getTier())) {
-                //And if the killer should level up, we increment the killer's tier and decrement the player's tier
-                killer.incrementTier();
+            if(player.getTier() != GlintTier.F) {
+                //We drop the appropriate book
+                player.getPlayer().getWorld().dropItemNaturally(player.getPlayer().getLocation(), player.getGlintBook());
+                if(killer.shouldLevelUp(player.getTier())) {
+                    //And if the killer should level up, we increment the killer's tier and decrement the player's tier
+                    killer.incrementTier();
+                }
+                player.decrementTier();
             }
-            player.decrementTier();
         }
     }
 
@@ -161,8 +157,6 @@ public class GlintSMP extends JavaPlugin implements Listener {
         getCommand("glintapply").setExecutor(new GlintApplyCommand());
         getCommand("glintbook").setExecutor(new GlintBookCommand());
         getCommand("glintrandom").setExecutor(new RandGlintBook());
-        getCommand("setspawn").setExecutor(new SetSpawnCommand());
-        getCommand("spawncheck").setExecutor(new SpawnCheckCommand());
         getCommand("glinttier").setExecutor(new GlintTierCommand());
         getCommand("glintrevive").setExecutor(new GlintReviveCommand());
         getCommand("revivalwave").setExecutor(new RevivalWave());
@@ -194,5 +188,11 @@ public class GlintSMP extends JavaPlugin implements Listener {
         rec.setIngredient('T', Material.TOTEM_OF_UNDYING);
         rec.setIngredient('N', Material.NETHERITE_INGOT);
         return rec;
+    }
+
+    @Override
+    public void onDisable() {
+        Bukkit.removeRecipe(new NamespacedKey(this, "tier_up"));
+        Bukkit.removeRecipe(new NamespacedKey(this, "player_head"));
     }
 }

@@ -1,5 +1,5 @@
 name: GlintSMP
-version: 2.2
+version: 3.0
 main: com.notverygoodatthis.GlintSMP
 api-version: 1.19
 
@@ -17,15 +17,6 @@ commands:
     description: Gives you a randomly generated Glint SMP book (ADMIN ONLY)
     usage: /<command>
     permission: glintsmp.admin
-
-  setspawn:
-    description: Sets the Glint SMP spawn, used to log killing at spawn (ADMIN ONLY)
-    usage: /<command>
-    permission: glintsmp.admin
-
-  spawncheck:
-    description: Checks whether the current area counts as spawn
-    usage: /<command>
 
   glinttier:
     description: Sets a player's tier (ADMIN ONLY)

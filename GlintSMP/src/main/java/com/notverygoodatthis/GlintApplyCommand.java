@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.Repairable;
 
 import java.util.Map;
 
@@ -22,6 +23,8 @@ public class GlintApplyCommand implements CommandExecutor {
             //the book is named accordingly
             if(player.getInventory().getItemInOffHand().getType() == Material.ENCHANTED_BOOK &&
                     player.getInventory().getItemInOffHand().getItemMeta().getDisplayName().equals(GlintSMP.glintText("Glint book"))) {
+                Repairable before = (Repairable) player.getInventory().getItemInMainHand().getItemMeta();
+
                 //We create an EnchantmentStorageMeta and point it to the book's ItemMeta, and pick the first enchantment in there.
                 //This works because glint books only have one enchantment. We also store the level.
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) player.getInventory().getItemInOffHand().getItemMeta();
@@ -31,8 +34,13 @@ public class GlintApplyCommand implements CommandExecutor {
                 if(ench.canEnchantItem(player.getInventory().getItemInMainHand())) {
                     //We enchant the player's item, notify them and take away one glint book.
                     player.getInventory().getItemInMainHand().addUnsafeEnchantment(ench, level);
-                    player.sendMessage(String.format(GlintSMP.glintText("Applied %s %d to your %s"), ench.getKey(), level, player.getInventory().getItemInMainHand().getType()));
                     player.getInventory().getItemInOffHand().setAmount(player.getInventory().getItemInOffHand().getAmount() - 1);
+
+                    Repairable after = (Repairable) player.getInventory().getItemInMainHand().getItemMeta();
+                    after.setRepairCost(before.getRepairCost());
+                    player.getInventory().getItemInMainHand().setItemMeta(after);
+
+                    player.sendMessage(String.format(GlintSMP.glintText("Applied %s %d to your %s"), ench.getKey(), level, player.getInventory().getItemInMainHand().getType()));
                 } else {
                     //But if it can't, we notify the player and don't take away anything.
                     player.sendMessage(String.format(GlintSMP.glintText("Couldn't apply %s %d to your %s"), ench.getKey(), level, player.getInventory().getItemInMainHand().getType()));

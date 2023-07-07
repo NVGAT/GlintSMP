@@ -18,7 +18,8 @@ enum GlintTier {
     A,
     B,
     C,
-    D
+    D,
+    F
 }
 
 public class GlintPlayer {
@@ -72,6 +73,9 @@ public class GlintPlayer {
             case D:
                 item = GlintSMP.getGlintBook(ench, GlintSMP.randRange(1, 3));
                 break;
+            case F:
+                item.setType(Material.AIR);
+                break;
         }
         return item;
     }
@@ -96,13 +100,6 @@ public class GlintPlayer {
         updateTabListName();
     }
 
-    public void glintBan() {
-        setTier(GlintTier.B);
-        String reason = GlintSMP.glintText(String.format("You've been knocked out of D tier by %s. Thank you for playing on the Glint SMP.", player.getKiller().getName()));
-        Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, "Glint SMP plugin");
-        player.kickPlayer(reason);
-    }
-
     public void decrementTier() {
         List<GlintTier> allTiers = Arrays.asList(GlintTier.values());
         try {
@@ -111,7 +108,6 @@ public class GlintPlayer {
             Bukkit.getLogger().info(String.format("Decremented the tier of %s to %s", player.getName(), minusOne));
         } catch(ArrayIndexOutOfBoundsException e) {
             Bukkit.getLogger().info(String.format("Couldn't decrement the tier of %s because it's already at its lowest", player.getName()));
-            glintBan();
         }
         updateTabListName();
     }
