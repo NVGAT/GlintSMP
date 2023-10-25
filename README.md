@@ -42,3 +42,8 @@ java -jar -Xms512M -Xmx2G server.jar nogui
 `-Xmx2G` - Tells the JRE that it can use a maximum of 2 gigabytes for the server. Depending on the size of your server and your computer, you might want to change this value.\
 `server.jar` - Points the JRE to the server.jar file\
 `nogui` - Tells the server not to display any GUI. You can remove this if you want a GUI
+
+## What to do if you're using my work for your servers
+If you're using my work in public Minecraft servers, I'd like to be credited. Keep in mind: I am a 16 year old hobby dev, so I don't have any kind of legal backing for this.\
+However, if you support small developers essentially powering your server, make sure to incorporate my YouTube channel in a format similar to this:\
+### The plugin used in this SMP was made by NotVeryGoodAtThis, show him some love over at [his channel](https://www.youtube.com/@NotVeryGoodAtThis).
